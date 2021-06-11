@@ -1,0 +1,85 @@
+version: '3'
+
+services:
+  # app:
+  #   container_name: lamboEngine
+  #   build:
+  #     context: ./lamboEngine
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - 8089:8089
+  #   environment:
+  #     DB_USERNAME: "postgres"
+  #     DB_PASSWORD: "postgres"
+  #     DB_HOST: "lambo_bot"
+  #   volumes:
+  #     - /Users/segfault42/media/lamboBot/logs/lamboEngine:/app/logs
+  #   depends_on:
+  #     - postgres
+  #   command: ["./scripts/wait-for-it.sh", "db:5432", "--"]
+
+  #  tailon:
+  #   container_name: lamboFuelTank
+  #   image: gvalkov/tailon
+  #   ports:
+  #     - 8081:8080
+  #   volumes:
+  #     #- /Users/segfault42/media/lamboBot/logs:/tailon/logs
+  #     # - /Users/segfault42/media/lamboBot/lamboInjector/logs:/tailon/logs
+  #     - /Users/segfault42/media/lamboBot/lamboTrunk/logs:/tailon/logs
+  #   command: -c /tailon/config/tailon.cfg /tailon/logs/*
+  #   restart: always
+
+   postgres:
+     container_name: database
+     image: postgres
+     ports:
+       - 5432:5432
+     environment:
+       - POSTGRES_DB=lambo_trunk
+       - POSTGRES_USER=postgres
+       - POSTGRES_PASSWORD=password
+     volumes:
+      # - /Users/segfault42/media/lamboBot/postgres-data:/usr/local/var/postgres
+      - /mnt/media/lamboBot/postgres-data:/var/lib/postgresql/data
+      - ./lamboTrunk/database/10-init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    #  env_file:
+    #   - database.env
+
+  # Telegram bot
+   lambo_injector:
+     container_name: lamboInjector
+     build:
+          context: ./lamboInjector
+          dockerfile: ./Dockerfile
+     env_file:
+       - ./lamboInjector/.env
+       - ./database.env
+     volumes:
+      - /mnt/media/lamboBot/lamboInjector/logs:/lamboInjector/logs
+     restart: always
+
+  # Saving bot
+   lambo_trunk:
+     container_name: lamboTrunk
+     build:
+          context: ./lamboTrunk
+          dockerfile: ./Dockerfile
+     env_file:
+       - ./lamboTrunk/.env
+       - ./database.env
+     volumes:
+      - /mnt/media/lamboBot/lamboTrunk/logs:/lamboTrunk/logs
+      #  - /Users/segfault42/media/lamboBot/lamboTrunk:/lamboTrunk
+     depends_on:
+       - postgres
+     restart: always
+
+  # docker log web interface
+   dozzle:
+     container_name: dozzle
+     image: amir20/dozzle:latest
+     volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+     ports:
+      - 9999:8080
