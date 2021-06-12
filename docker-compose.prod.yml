@@ -36,9 +36,9 @@ services:
      ports:
        - 5432:5432
      environment:
-       - POSTGRES_DB=lambo_trunk
-       - POSTGRES_USER=postgres
-       - POSTGRES_PASSWORD=password
+       - POSTGRES_USER: ${POSTGRES_USER}
+       - POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+       - POSTGRES_DB: ${POSTGRES_DB}
      volumes:
       # - /Users/segfault42/media/lamboBot/postgres-data:/usr/local/var/postgres
       - /mnt/media/lamboBot/postgres-data:/var/lib/postgresql/data
@@ -53,8 +53,7 @@ services:
           context: ./lamboInjector
           dockerfile: ./Dockerfile
      env_file:
-       - ./lamboInjector/.env
-       - ./database.env
+      - .env
      volumes:
       - /mnt/media/lamboBot/lamboInjector/logs:/lamboInjector/logs
      restart: always
@@ -65,9 +64,15 @@ services:
      build:
           context: ./lamboTrunk
           dockerfile: ./Dockerfile
-     env_file:
-       - ./lamboTrunk/.env
-       - ./database.env
+     environment:
+       - POSTGRES_USER: ${POSTGRES_USER}
+       - POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+       - POSTGRES_DB: ${POSTGRES_DB}
+       - POSTGRES_PORT: ${POSTGRES_PORT}
+       - POSTGRES_HOST: ${POSTGRES_HOST}
+       - APP_ENV: ${APP_ENV}
+       - BINANCE_API_KEY: {BINANCE_API_KEY}
+       - BINANCE_SECRET_KEY: {BINANCE_SECRET_KEY}
      volumes:
       - /mnt/media/lamboBot/lamboTrunk/logs:/lamboTrunk/logs
       #  - /Users/segfault42/media/lamboBot/lamboTrunk:/lamboTrunk
