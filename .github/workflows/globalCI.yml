@@ -26,4 +26,7 @@ jobs:
     - name: Deploy with rsync
       run: rsync -avzr * root@${{ secrets.SSH_HOST }}:/root/lamboWorkshop/
     - name: Reveal .env
-      run: git-secret reveal
+      run: ssh root@${{ secrets.SSH_HOST }} << EOF
+       cd /root/lamboWorkshop/
+       git-secret reveal
+       EOF
