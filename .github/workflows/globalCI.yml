@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - dev
   pull_request:
     branches: [ master ]
 
@@ -13,6 +12,8 @@ jobs:
   deploy:
     runs-on: self-hosted
     steps:
+    - name: Check out repository code
+      uses: actions/checkout@v2
     - name: Install SSH Key
       uses: shimataro/ssh-key-action@v2
       with:
@@ -21,7 +22,19 @@ jobs:
         if_key_exists: ignore
     - name: Adding Known Hosts
       run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+    - name: copy .env
+      run: |
+       cat << EOF > .env
+       APP_ENV=${{ secrets.APP_ENV }}
+       BINANCE_API_KEY=${{ secrets.BINANCE_API_KEY }}
+       BINANCE_SECRET_KEY =${{ secrets.BINANCE_SECRET_KEY  }}
+       POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+       POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}
+       POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+       POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}
+       POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+       TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }}
+       EOF
     - name: Deploy with rsync
-      run: rsync -avzr docker-compose.prod.yml docker-compose.yml scripts .env.secret root@${{ secrets.SSH_HOST }}:/root/lamboWorkshop/
-    - name: Reveal .env
-      run: git-secret reveal
+      run: rsync -avzr .env docker-compose.prod.yml scripts root@${{ secrets.SSH_HOST }}:/root/lamboWorkshop/
+   
