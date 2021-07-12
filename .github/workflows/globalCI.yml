@@ -24,14 +24,14 @@ jobs:
     - name: Adding Known Hosts
       run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
     - name: copy .env
-      run: echo APP_ENV=${{ secrets.APP_ENV }}
-           echo BINANCE_API_KEY=${{ secrets.BINANCE_API_KEY }}\n
-           echo BINANCE_SECRET_KEY =${{ secrets.BINANCE_SECRET_KEY  }}\n
-           echo POSTGRES_DB=${{ secrets.POSTGRES_DB }}\n
-           echo POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}\n
-           echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}\n
-           echo POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}\n
-           echo POSTGRES_USER=${{ secrets.POSTGRES_USER }}\n
+      run: echo APP_ENV=${{ secrets.APP_ENV }} >> .env
+           echo BINANCE_API_KEY=${{ secrets.BINANCE_API_KEY }} >> .env
+           echo BINANCE_SECRET_KEY =${{ secrets.BINANCE_SECRET_KEY }} >> .env
+           echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env
+           echo POSTGRES_HOST=${{ secrets.POSTGRES_HOST }} >> .env
+           echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
+           echo POSTGRES_PORT=${{ secrets.POSTGRES_PORT }} >> .env
+           echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
            echo TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }}" >> .env
     - name: Deploy with rsync
       run: rsync -avzr .env docker-compose.prod.yml scripts root@${{ secrets.SSH_HOST }}:/root/lamboWorkshop/
