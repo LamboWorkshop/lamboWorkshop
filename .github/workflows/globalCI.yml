@@ -40,6 +40,6 @@ jobs:
         mv docker-compose.prod.yml docker-compose.yml
         rsync -avzr .env docker-compose.yml scripts root@${{ secrets.SSH_HOST }}:/root/lamboWorkshop/
         ssh root@{{ secrets.SSH_HOST }} << EOF
+        cd /root/lamboWorkshop
         docker-compose down && docker-compose up -d --build --force-recreate --no-deps
         EOF
-   
